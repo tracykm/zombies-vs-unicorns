@@ -1,0 +1,84 @@
+{"frames": {
+
+"ICONATOR_dc206455e35792b1a7429f8b4f.gif":
+{
+	"frame": {"x":1217,"y":1,"w":178,"h":185},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":11,"y":15,"w":178,"h":185},
+	"sourceSize": {"w":200,"h":200}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0000_Layer-8.png":
+{
+	"frame": {"x":1037,"y":1,"w":178,"h":186},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":178,"h":186},
+	"sourceSize": {"w":178,"h":186}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0001_Layer-7.png":
+{
+	"frame": {"x":341,"y":1,"w":174,"h":196},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":174,"h":196},
+	"sourceSize": {"w":174,"h":196}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0002_Layer-6.png":
+{
+	"frame": {"x":169,"y":1,"w":170,"h":198},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":170,"h":198},
+	"sourceSize": {"w":170,"h":198}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0003_Layer-5.png":
+{
+	"frame": {"x":1,"y":1,"w":166,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":166,"h":200},
+	"sourceSize": {"w":166,"h":200}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0004_Layer-4.png":
+{
+	"frame": {"x":517,"y":1,"w":168,"h":196},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":168,"h":196},
+	"sourceSize": {"w":168,"h":196}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0005_Layer-3.png":
+{
+	"frame": {"x":687,"y":1,"w":172,"h":192},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":172,"h":192},
+	"sourceSize": {"w":172,"h":192}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0006_Layer-2.png":
+{
+	"frame": {"x":861,"y":1,"w":174,"h":190},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":174,"h":190},
+	"sourceSize": {"w":174,"h":190}
+},
+"ICONATOR_dc206455e35792b1a7429f8b4f_0007_Layer-1.png":
+{
+	"frame": {"x":1397,"y":1,"w":176,"h":184},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":176,"h":184},
+	"sourceSize": {"w":176,"h":184}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "zomb.png",
+	"format": "RGBA8888",
+	"size": {"w":1574,"h":202},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:cbd9de6ccf7e31c7dbb74a79897d0de2:413b0fe7cd584895e3f332fa13a134d4:21e91b2f2d2ce14ada7a33d25aebd6d9$"
+}
+}
