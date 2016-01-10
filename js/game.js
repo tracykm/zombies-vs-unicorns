@@ -26,12 +26,6 @@
 
     var player; // The player-controlled sprite
     var enemies = [];
-    var facing = "left"; // Which direction the character is facing (default is 'left')
-    var normMove = 160; // The amount to move horizontally
-    var rageMove = 360; // The amount to move horizontally
-    var vertMove = -380; // The amount to move vertically (when 'jumping')
-    var jumpTimer = 0; // The initial value of the timer
-    var rageTimer = 0; // The initial value of the timer
     var score = 0;
 
     //Start Part 2
@@ -56,119 +50,123 @@
 
         // Create and add a sprite to the game at the position (2*48 x 6 *48)
         // and using, in this case, the spritesheet 'character'
-        player = game.add.sprite(7 * 64, 3 * 64, 'zombie');
         new Enemy(3,3, 'left');
         new Enemy(9,3, 'right');
         new Enemy(15,9, 'right');
         new Enemy(20,9, 'left');
         new Enemy(20,3, 'left');
         new Enemy(30,10, 'left');
-
-        // By default, sprites do not have a physics 'body'
-        // Before we can adjust its physics properties,
-        // we need to add a 'body' by enabling
-        // (As a second argument, we can specify the
-        //  physics system to use too. However, since we
-        //  started the Arcade system already, it will
-        //  default to that.)
-        game.physics.enable(player);
-        // game.physics.enable(enemy2);
-
-        // We want the player to collide with the bounds of the world
-        // player.body.collideWorldBounds = true;
-
-        // Set the amount of gravity to apply to the physics body of the 'player' sprite
-        player.body.gravity.y = 800;
-
-        player.animations.add('left', [7,6,5,4,3,2,1,0], 10, true);
-        player.animations.add('right', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
-        player.animations.add('still', [17], 10, true);
+        player = new Player(7, 3);
 
         // Set the camera to follow the 'player'
-        game.camera.follow(player);
+        game.camera.follow(player.sprite);
+        updateScore();
+    }
+
+    function updateScore(){
+      document.querySelector("#score #num").innerHTML= score + " /" + enemies.length;
 
     }
 
     function fight(player, enemy){
       score++;
-
-      document.querySelector("#score #num").innerHTML= score + " /" + enemies.length;
+      updateScore();
       enemy.kill();
     }
 
     function update() {
       enemies.forEach(function(enemy){
-        enemy.updateEnemy();
+        enemy.updateMove();
       });
 
-        game.physics.arcade.collide(player, layer);
-        player.body.velocity.x = 0;
-
-        var hozMove = normMove;
-        if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
-          console.log("shift");
-          rageTimer = rageTimer || game.time.now + 650;
-          hozMove = rageMove;
-        }else{
-          rageTimer = null;
-        }
-
-        if(game.time.now > rageTimer){
-          hozMove = normMove;
-        }
-
-
-        if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-            player.body.velocity.x = -hozMove;
-            if (facing !== "left"){
-                facing = "left";
-            }
-        }
-        else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-            player.body.velocity.x = hozMove;
-            if (facing !== "right"){
-                facing = "right";
-            }
-        }
-
-        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && player.body.onFloor() && game.time.now > jumpTimer){
-            player.body.velocity.y = vertMove;
-            jumpTimer = game.time.now + 650;
-        }
-
-        if (facing === "left") {
-            player.animations.play('left');
-        } else {
-            player.animations.play('right');
-        }
-
-
+      player.updateMove()
     }
 
-        var Enemy = function(x, y, facing){
-          var enemy = game.add.sprite(x * 64, y * 64, 'unicorn');
-          game.physics.enable(enemy);
-          enemy.body.gravity.y = 400;
+    var Player = function(x, y){
+      playerSprite = game.add.sprite(x * 64, y * 64, 'zombie');
+      game.physics.enable(playerSprite);
+      playerSprite.body.gravity.y = 800;
 
-          enemy.animations.add('left', [1, 2, 3, 4,5], 5, true);
-          enemy.animations.add('right', [6,7,8,9,10], 5, true);
+      playerSprite.animations.add('left', [7,6,5,4,3,2,1,0], 10, true);
+      playerSprite.animations.add('right', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
+      playerSprite.animations.add('still', [17], 10, true);
+      this.sprite = playerSprite;
 
-          game.physics.enable(enemy)
-          enemies.push(this);
-          this.sprite = enemy;
-          this.facing = facing;
-        }
+      this.facing = "left"; // Which direction the character is facing (default is 'left')
+      this.normMove = 160; // The amount to move horizontally
+      this.rageMove = 360; // The amount to move horizontally
+      this.vertMove = -380; // The amount to move vertically (when 'jumping')
+      this.jumpTimer = 0; // The initial value of the timer
+      this.rageTimer = 0; // The initial value of the timer
+    }
 
-        Enemy.prototype.updateEnemy = function(){
-          var enemy = this.sprite;
-          if(this.facing === "left"){
-            this.sprite.animations.play('left');
-          }else{
-            this.sprite.animations.play('right');
+    Player.prototype.updateMove = function(){
+      playerSprite = this.sprite;
+      game.physics.arcade.collide(playerSprite, layer);
+      playerSprite.body.velocity.x = 0;
+
+      var hozMove = this.normMove;
+      if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
+        this.rageTimer = this.rageTimer || game.time.now + 650;
+        hozMove = this.rageMove;
+      }else{
+        this.rageTimer = null;
+      }
+
+      if(game.time.now > this.rageTimer){
+        hozMove = this.normMove;
+      }
+
+
+      if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+          playerSprite.body.velocity.x = -hozMove;
+          if (this.facing !== "left"){
+              this.facing = "left";
           }
-          game.physics.arcade.collide(enemy, layer);
-          game.physics.arcade.overlap(player, enemy, fight, null, this)
-        }
+      }
+      else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+          playerSprite.body.velocity.x = hozMove;
+          if (this.facing !== "right"){
+              this.facing = "right";
+          }
+      }
+
+      if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && playerSprite.body.onFloor() && game.time.now > this.jumpTimer){
+          playerSprite.body.velocity.y = vertMove;
+          this.jumpTimer = game.time.now + 650;
+      }
+
+      if (this.facing === "left") {
+          playerSprite.animations.play('left');
+      } else {
+          playerSprite.animations.play('right');
+      }
+    }
+
+    var Enemy = function(x, y, facing){
+      var enemy = game.add.sprite(x * 64, y * 64, 'unicorn');
+      game.physics.enable(enemy);
+      enemy.body.gravity.y = 400;
+
+      enemy.animations.add('left', [1, 2, 3, 4,5], 5, true);
+      enemy.animations.add('right', [6,7,8,9,10], 5, true);
+
+      game.physics.enable(enemy)
+      enemies.push(this);
+      this.sprite = enemy;
+      this.facing = facing;
+    }
+
+    Enemy.prototype.updateMove = function(){
+      var enemy = this.sprite;
+      if(this.facing === "left"){
+        this.sprite.animations.play('left');
+      }else{
+        this.sprite.animations.play('right');
+      }
+      game.physics.arcade.collide(enemy, layer);
+      game.physics.arcade.overlap(player.sprite, enemy, fight, null, this)
+    }
 
 
 
