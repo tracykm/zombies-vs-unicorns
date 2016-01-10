@@ -132,7 +132,7 @@
       }
 
       if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && playerSprite.body.onFloor() && game.time.now > this.jumpTimer){
-          playerSprite.body.velocity.y = vertMove;
+          playerSprite.body.velocity.y = this.vertMove;
           this.jumpTimer = game.time.now + 650;
       }
 
