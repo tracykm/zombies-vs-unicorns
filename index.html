@@ -4,11 +4,27 @@
         <title>Zombies vs Unicorns</title>
         <script src="js/phaser.js"></script>
         <script src="js/game.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
         <LINK href="style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <h1>Zombies VS Unicorns</h1>
-        <div id="score">Score: <span id="num">0</span></div>
-        <div id="phaser"></div>
+        <div id="phaser">
+          <div id="toolbar">
+            <span id="lives">Undead Lives Left: <span id="num">0</span></span>
+            <span id="score">Unicorns: <span id="num">0</span></span>
+          </div>
+          <div id="textScreen" class="hide">text</div>
+          <div id="directions">
+            <div id="small">
+              You are the lone zombie in a world overrun with unicorns.
+              Take back what's your's and rid the world of this pink sparkley plague,
+              before we all die of pink overload.
+            </div>
+            <br/>
+            <div><span class="bold"> Hold shift </span> for proper Unicorn killing rage,
+              or they might get you...</div>
+          </div>
+        </div>
     </body>
 </html>

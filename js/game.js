@@ -27,6 +27,7 @@
     var player; // The player-controlled sprite
     var enemies = [];
     var score = 0;
+    var gameIsOver = false;
 
     //Start Part 2
     var map;
@@ -61,11 +62,24 @@
         // Set the camera to follow the 'player'
         game.camera.follow(player.sprite);
         updateScore();
+        updateLives();
     }
 
     function updateScore(){
       document.querySelector("#score #num").innerHTML= score + " /" + enemies.length;
+    }
+    function updateLives(){
+      document.querySelector("#lives #num").innerHTML= Array(player.lives+1).join(" &#9829");
+    }
 
+    function gameOver(){
+      document.querySelector("#textScreen").innerHTML= "Game Over";
+      document.querySelector("#textScreen").className = "";
+    }
+
+    function youWin(){
+      document.querySelector("#textScreen").innerHTML= "You Win!";
+      document.querySelector("#textScreen").className = "";
     }
 
     function fight(playerSprite, enemy){
@@ -73,6 +87,25 @@
         score++;
         updateScore();
         enemy.kill();
+      }else{
+        if(!player.gettingHurt){
+          player.lives--;
+          updateLives()
+          // playerSprite.tint = Math.random() * 0xffffff;
+          player.gettingHurt = true;
+          window.setTimeout(function(){
+            player.gettingHurt = false;
+          }, 1000);
+        }
+        if(player.lives === 0){
+          gameIsOver = true;
+          gameOver();
+        }
+      }
+
+      if(score === enemies.length){
+        player.canMove = false;
+        youWin();
       }
     }
 
@@ -102,6 +135,8 @@
       this.rageTimer = 0; // The initial value of the timer
       this.rageHit = false;
       this.isRaging = false;
+      this.lives = 3;
+      this.gettingHurt = false;
     }
 
     Player.prototype.updateMove = function(){
@@ -109,47 +144,66 @@
       game.physics.arcade.collide(playerSprite, layer);
       playerSprite.body.velocity.x = 0;
 
+      if(!gameIsOver){
+        movePlayer(this);
+      }else{
+        this.sprite.tint = 15833293.907824585;
+      }
+
+    }
+
+    function movePlayer(thisP){
       if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
-        if(!this.rageHit){
-          this.rageHit = true;
-          this.rageTimer = game.time.now + 650;
-          console.log(this.rageTimer );
+        if(!thisP.rageHit){
+          thisP.rageHit = true;
+          thisP.rageTimer = game.time.now + 650;
+          console.log(thisP.rageTimer );
         }
       }else{
         player.rage = false;
-        this.rageHit = false;
+        thisP.rageHit = false;
       }
 
-      this.isRaging = (this.rageHit && game.time.now < this.rageTimer);
+      thisP.isRaging = (thisP.rageHit && game.time.now < thisP.rageTimer);
 
-      var hozMove = this.normMove;
-      if(this.isRaging){
-        hozMove = this.rageHitMove;
+      var hozMove = thisP.normMove;
+      if(thisP.isRaging){
+        hozMove = thisP.rageHitMove;
       }
 
 
       if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
           playerSprite.body.velocity.x = -hozMove;
-          if (this.facing !== "left"){
-              this.facing = "left";
+          if (thisP.facing !== "left"){
+              thisP.facing = "left";
           }
       }
       else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
           playerSprite.body.velocity.x = hozMove;
-          if (this.facing !== "right"){
-              this.facing = "right";
+          if (thisP.facing !== "right"){
+              thisP.facing = "right";
           }
       }
 
-      if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && playerSprite.body.onFloor() && game.time.now > this.jumpTimer){
-          playerSprite.body.velocity.y = this.vertMove;
-          this.jumpTimer = game.time.now + 650;
+      if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && playerSprite.body.onFloor() && game.time.now > thisP.jumpTimer){
+          playerSprite.body.velocity.y = thisP.vertMove;
+          thisP.jumpTimer = game.time.now + 650;
       }
 
-      if (this.facing === "left") {
+      if (thisP.facing === "left") {
           playerSprite.animations.play('left');
       } else {
           playerSprite.animations.play('right');
+      }
+
+      if(thisP.gettingHurt){
+        if(Math.random() >= 0.5){
+          thisP.sprite.tint = 15833293.907824585;
+        }else{
+          thisP.sprite.tint = 0xffffff;
+        }
+      }else{
+        thisP.sprite.tint = 0xffffff;
       }
     }
 
@@ -175,7 +229,9 @@
         this.sprite.animations.play('right');
       }
       game.physics.arcade.collide(enemy, layer);
-      game.physics.arcade.overlap(player.sprite, enemy, fight, null, this)
+      if(!gameIsOver){
+        game.physics.arcade.overlap(player.sprite, enemy, fight, null, this)
+      }
     }
 
 

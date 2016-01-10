@@ -2,6 +2,45 @@ body{
   text-align: center;
   font-family: "Avenir Next"
 }
-#phaser canvas{
+#phaser{
   margin: auto;
+  width: 900px;
+}
+
+#textScreen{
+  font-size: 4em;
+  position: relative;
+  top: -300px;
+  background: rgba(255, 255, 255, .5);;
+}
+.hide{
+  display: none;
+}
+
+#toolbar{
+  text-align: left;
+  font-size: .5em;
+}
+#toolbar span{
+  font-size: 2em;
+}
+
+#directions{
+  width: 800px;
+  margin: auto;
+  text-align: left;
+  font-size: 2em;
+  padding: 50px;
+  position: absolute;
+  top: 200px;
+  background: rgba(255, 255, 255, .5);;
+}
+
+.bold{
+  font-size: 1em;
+  font-weight: bold;
+}
+
+#toolbar #score{
+  float: right;
 }
