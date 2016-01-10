@@ -20,16 +20,19 @@
         // game.load.atlasJSONHash('zombie', 'assets/zomb.png', 'assets/zomb.json')
 
         //Start Part 2
-        game.load.tilemap('map', 'assets/map3.json', null, Phaser.Tilemap.TILED_JSON);
-        game.load.image('level', "assets/level.png");
+        game.load.tilemap('map', 'assets/purple-level.json', null, Phaser.Tilemap.TILED_JSON);
+        game.load.image('level-80', "assets/level-80.png");
     }
 
     var player; // The player-controlled sprite
-    var enemy; // The player-controlled sprite
+    var enemies = [];
     var facing = "left"; // Which direction the character is facing (default is 'left')
-    var hozMove = 160; // The amount to move horizontally
+    var normMove = 160; // The amount to move horizontally
+    var rageMove = 360; // The amount to move horizontally
     var vertMove = -380; // The amount to move vertically (when 'jumping')
     var jumpTimer = 0; // The initial value of the timer
+    var rageTimer = 0; // The initial value of the timer
+    var score = 0;
 
     //Start Part 2
     var map;
@@ -45,7 +48,7 @@
 
         // Start Part 2 Tilemap Loading
         map = game.add.tilemap('map'); // 'map' needs to match the Tilemap cache-key
-        map.addTilesetImage('level'); // 'map' needs to match the Image cache-key
+        map.addTilesetImage('level-80'); // 'map' needs to match the Image cache-key
         map.setCollisionBetween(1, 5);
         layer = map.createLayer('Tile Layer 1');
         layer.resizeWorld();
@@ -54,8 +57,12 @@
         // Create and add a sprite to the game at the position (2*48 x 6 *48)
         // and using, in this case, the spritesheet 'character'
         player = game.add.sprite(7 * 64, 3 * 64, 'zombie');
-        enemy = game.add.sprite(3 * 64, 3 * 64, 'unicorn');
-        // enemy2 = game.add.sprite(9 * 64, 4 * 64, 'unicorn');
+        new Enemy(3,3, 'left');
+        new Enemy(9,3, 'right');
+        new Enemy(15,9, 'right');
+        new Enemy(20,9, 'left');
+        new Enemy(20,3, 'left');
+        new Enemy(30,10, 'left');
 
         // By default, sprites do not have a physics 'body'
         // Before we can adjust its physics properties,
@@ -65,7 +72,6 @@
         //  started the Arcade system already, it will
         //  default to that.)
         game.physics.enable(player);
-        game.physics.enable(enemy);
         // game.physics.enable(enemy2);
 
         // We want the player to collide with the bounds of the world
@@ -73,16 +79,10 @@
 
         // Set the amount of gravity to apply to the physics body of the 'player' sprite
         player.body.gravity.y = 800;
-        enemy.body.gravity.y = 400;
-
-        enemy.animations.add('left', [1, 2, 3, 4,5], 5, true);
-        enemy.animations.add('right', [6,7,8,9,10], 5, true);
 
         player.animations.add('left', [7,6,5,4,3,2,1,0], 10, true);
         player.animations.add('right', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
         player.animations.add('still', [17], 10, true);
-
-      scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
 
         // Set the camera to follow the 'player'
         game.camera.follow(player);
@@ -90,116 +90,86 @@
     }
 
     function fight(player, enemy){
-      console.log("enemy");
+      score++;
+
+      document.querySelector("#score #num").innerHTML= score + " /" + enemies.length;
       enemy.kill();
     }
 
     function update() {
+      enemies.forEach(function(enemy){
+        enemy.updateEnemy();
+      });
 
-        // Start of Part 2 Player-Layer collision
         game.physics.arcade.collide(player, layer);
-        game.physics.arcade.collide(enemy, layer);
-
-        game.physics.arcade.overlap(player, enemy, fight, null, this)
-        // End of Part 2 Player-Layer collision
-
-        // Reset the x (horizontal) velocity
         player.body.velocity.x = 0;
 
-        // Check if the left arrow key is being pressed
-        if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT))
-        {
-            // Set the 'player' sprite's x velocity to a negative number:
-            //  have it move left on the screen.
-            player.body.velocity.x = -hozMove;
+        var hozMove = normMove;
+        if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
+          console.log("shift");
+          rageTimer = rageTimer || game.time.now + 650;
+          hozMove = rageMove;
+        }else{
+          rageTimer = null;
+        }
 
-            // Check if 'facing' is not "left"
-            if (facing !== "left")
-            {
-                // Set 'facing' to "left"
+        if(game.time.now > rageTimer){
+          hozMove = normMove;
+        }
+
+
+        if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+            player.body.velocity.x = -hozMove;
+            if (facing !== "left"){
                 facing = "left";
             }
         }
-        // Check if the right arrow key is being pressed
-        else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
-        {
-            // Set the 'player' sprite's x velocity to a positive number:
-            //  have it move right on the screen.
+        else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
             player.body.velocity.x = hozMove;
-
-            // Check if 'facing' is not "right"
-            if (facing !== "right")
-            {
-                // Set 'facing' to "right"
+            if (facing !== "right"){
                 facing = "right";
             }
         }
 
-        // Check if the jumpButton (SPACEBAR) is down AND
-        //  if the 'player' physics body is onFloor (touching a tile) AND
-        //  if the current game.time is greater than the value of 'jumpTimer'
-        //  (Here, we need to make sure the player cannot jump while alreay in the air
-        //   AND that jumping takes place while the sprite is colliding with
-        //   a tile in order to jump off it.)
-        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && player.body.onFloor() && game.time.now > jumpTimer)
-        {
-            // Set the 'player' sprite's y velocity to a negative number
-            //  (vertMove is -90) and thus have it move up on the screen.
+        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && player.body.onFloor() && game.time.now > jumpTimer){
             player.body.velocity.y = vertMove;
-            // Add 650 and the current time together and set that value to 'jumpTimer'
-            // (The 'jumpTimer' is how long in milliseconds between jumps.
-            //   Here, that is 650 ms.)
             jumpTimer = game.time.now + 650;
         }
 
-        // Check if 'facing' is "left"
         if (facing === "left") {
-            // Set the 'player' to the second (1) frame
-            //  ('facing' is "left")
-            // player.frame = 1;
             player.animations.play('left');
         } else {
-            // Set the 'player' to the first (0) frame
-            //  ('facing' is "right").
-            // player.frame = 0;
             player.animations.play('right');
         }
-            enemy.animations.play('left');
+
 
     }
 
+        var Enemy = function(x, y, facing){
+          var enemy = game.add.sprite(x * 64, y * 64, 'unicorn');
+          game.physics.enable(enemy);
+          enemy.body.gravity.y = 400;
 
-var Enemy = function (game_state, position, properties) {
-        "use strict";
-        Platformer.Prefab.call(this, game_state, position, properties);
+          enemy.animations.add('left', [1, 2, 3, 4,5], 5, true);
+          enemy.animations.add('right', [6,7,8,9,10], 5, true);
 
-        this.walking_speed = +properties.walking_speed;
-        this.walking_distance = +properties.walking_distance;
-
-        // saving previous x to keep track of walked distance
-        this.previous_x = this.x;
-
-        this.game_state.game.physics.arcade.enable(this);
-        this.body.velocity.x = properties.direction * this.walking_speed;
-
-        this.scale.setTo(-properties.direction, 1);
-
-        this.anchor.setTo(0.5);
-    };
-
-    Platformer.Enemy.prototype = Object.create(Platformer.Prefab.prototype);
-    Platformer.Enemy.prototype.constructor = Platformer.Enemy;
-
-    Platformer.Enemy.prototype.update = function () {
-        "use strict";
-        this.game_state.game.physics.arcade.collide(this, this.game_state.layers.collision);
-
-        // change the direction if walked the maximum distance
-        if (Math.abs(this.x - this.previous_x) &gt;= this.walking_distance) {
-            this.body.velocity.x *= -1;
-            this.previous_x = this.x;
-            this.scale.setTo(-this.scale.x, 1);
+          game.physics.enable(enemy)
+          enemies.push(this);
+          this.sprite = enemy;
+          this.facing = facing;
         }
-    };
+
+        Enemy.prototype.updateEnemy = function(){
+          var enemy = this.sprite;
+          if(this.facing === "left"){
+            this.sprite.animations.play('left');
+          }else{
+            this.sprite.animations.play('right');
+          }
+          game.physics.arcade.collide(enemy, layer);
+          game.physics.arcade.overlap(player, enemy, fight, null, this)
+        }
+
+
 
 }(Phaser));
