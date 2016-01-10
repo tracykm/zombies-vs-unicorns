@@ -68,10 +68,12 @@
 
     }
 
-    function fight(player, enemy){
-      score++;
-      updateScore();
-      enemy.kill();
+    function fight(playerSprite, enemy){
+      if(player.isRaging){
+        score++;
+        updateScore();
+        enemy.kill();
+      }
     }
 
     function update() {
@@ -94,10 +96,12 @@
 
       this.facing = "left"; // Which direction the character is facing (default is 'left')
       this.normMove = 160; // The amount to move horizontally
-      this.rageMove = 360; // The amount to move horizontally
+      this.rageHitMove = 360; // The amount to move horizontally
       this.vertMove = -380; // The amount to move vertically (when 'jumping')
       this.jumpTimer = 0; // The initial value of the timer
       this.rageTimer = 0; // The initial value of the timer
+      this.rageHit = false;
+      this.isRaging = false;
     }
 
     Player.prototype.updateMove = function(){
@@ -105,16 +109,22 @@
       game.physics.arcade.collide(playerSprite, layer);
       playerSprite.body.velocity.x = 0;
 
-      var hozMove = this.normMove;
       if(game.input.keyboard.isDown(Phaser.Keyboard.SHIFT)){
-        this.rageTimer = this.rageTimer || game.time.now + 650;
-        hozMove = this.rageMove;
+        if(!this.rageHit){
+          this.rageHit = true;
+          this.rageTimer = game.time.now + 650;
+          console.log(this.rageTimer );
+        }
       }else{
-        this.rageTimer = null;
+        player.rage = false;
+        this.rageHit = false;
       }
 
-      if(game.time.now > this.rageTimer){
-        hozMove = this.normMove;
+      this.isRaging = (this.rageHit && game.time.now < this.rageTimer);
+
+      var hozMove = this.normMove;
+      if(this.isRaging){
+        hozMove = this.rageHitMove;
       }
 
 
