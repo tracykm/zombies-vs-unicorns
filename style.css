@@ -9,8 +9,10 @@ body{
 
 #textScreen{
   font-size: 4em;
-  position: relative;
-  top: -300px;
+  position: absolute;
+  width: 900px;
+  text-align: center;
+  top: 400px;
   background: rgba(255, 255, 255, .5);;
 }
 .hide{
@@ -29,11 +31,24 @@ body{
   width: 800px;
   margin: auto;
   text-align: left;
-  font-size: 2em;
+  font-size: 1.5em;
   padding: 50px;
   position: absolute;
   top: 200px;
-  background: rgba(255, 255, 255, .5);;
+  background: rgba(0, 0, 0, 0.8);;
+  color: white;
+}
+
+#start{
+  font-size: 3em;
+  text-align: center;
+  cursor: pointer;
+  /*background: black;
+  color: white;
+  */
+}
+#start:hover{
+  color: pink;
 }
 
 .bold{

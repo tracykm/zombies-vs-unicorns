@@ -16,7 +16,7 @@
     function preload() {
         // Load the spritesheet 'character.png', telling Phaser each frame is 40x64
         game.load.spritesheet('unicorn', 'assets/unicorn-sprite-less.png', 150, 150);
-        game.load.spritesheet('zombie', 'assets/zombie-sprite-70.png', 69, 70);
+        game.load.spritesheet('zombie', 'assets/zombie-rage-sprite.png', 69, 70);
         // game.load.atlasJSONHash('zombie', 'assets/zomb.png', 'assets/zomb.json')
 
         //Start Part 2
@@ -27,13 +27,22 @@
     var player; // The player-controlled sprite
     var enemies = [];
     var score = 0;
-    var gameIsOver = false;
+    var gameIsOver = true;
+    var gameIsWon = false;
 
     //Start Part 2
     var map;
     var layer;
 
+
     function create() {
+      document.querySelector("#start").onclick = function(){
+        gameIsOver = false;
+        player = new Player(7, 3);
+        game.camera.follow(player.sprite);
+        updateLives();
+        document.querySelector("#directions").className = "hide"
+      }
 
         // Make the background color of the game's stage
         game.stage.backgroundColor = '#ffb6c1';
@@ -53,16 +62,14 @@
         // and using, in this case, the spritesheet 'character'
         new Enemy(3,3, 'left');
         new Enemy(9,3, 'right');
+        new Enemy(8,9, 'right');
         new Enemy(15,9, 'right');
         new Enemy(20,9, 'left');
         new Enemy(20,3, 'left');
-        new Enemy(30,10, 'left');
-        player = new Player(7, 3);
+        new Enemy(30,10, 'right');
 
         // Set the camera to follow the 'player'
-        game.camera.follow(player.sprite);
         updateScore();
-        updateLives();
     }
 
     function updateScore(){
@@ -80,6 +87,7 @@
     function youWin(){
       document.querySelector("#textScreen").innerHTML= "You Win!";
       document.querySelector("#textScreen").className = "";
+      gameIsWon = true;
     }
 
     function fight(playerSprite, enemy){
@@ -104,7 +112,7 @@
       }
 
       if(score === enemies.length){
-        player.canMove = false;
+        gameIsOver = true;
         youWin();
       }
     }
@@ -114,7 +122,9 @@
         enemy.updateMove();
       });
 
-      player.updateMove()
+      if(player){
+        player.updateMove()
+      }
     }
 
     var Player = function(x, y){
@@ -125,9 +135,12 @@
       playerSprite.animations.add('left', [7,6,5,4,3,2,1,0], 10, true);
       playerSprite.animations.add('right', [8, 9, 10, 11, 12, 13, 14, 15], 10, true);
       playerSprite.animations.add('still', [17], 10, true);
+      playerSprite.animations.add('rageLeft', [19, 20, 21, 22, 23, 24, 25, 26], 10, true);
+      playerSprite.animations.add('rageRight', [27, 28, 29, 30, 31, 32, 33, 34], 10, true);
+      playerSprite.animations.add('dead', [18], 10, true);
       this.sprite = playerSprite;
 
-      this.facing = "left"; // Which direction the character is facing (default is 'left')
+      // this.facing = "still"; // Which direction the character is facing (default is 'left')
       this.normMove = 160; // The amount to move horizontally
       this.rageHitMove = 360; // The amount to move horizontally
       this.vertMove = -380; // The amount to move vertically (when 'jumping')
@@ -137,6 +150,7 @@
       this.isRaging = false;
       this.lives = 3;
       this.gettingHurt = false;
+      this.lastFacing = "left";
     }
 
     Player.prototype.updateMove = function(){
@@ -147,7 +161,13 @@
       if(!gameIsOver){
         movePlayer(this);
       }else{
-        this.sprite.tint = 15833293.907824585;
+        if(gameIsWon){
+          this.sprite.animations.play('still');
+          this.sprite.tint = 0xffffff;
+        }else{
+          this.sprite.animations.play('dead');
+          this.sprite.tint = 15833293.907824585;
+        }
       }
 
     }
@@ -176,13 +196,17 @@
           playerSprite.body.velocity.x = -hozMove;
           if (thisP.facing !== "left"){
               thisP.facing = "left";
+              thisP.lastFacing = "left";
           }
       }
       else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
           playerSprite.body.velocity.x = hozMove;
           if (thisP.facing !== "right"){
               thisP.facing = "right";
+              thisP.lastFacing = "right";
           }
+      }else{
+        thisP.facing = "front";
       }
 
       if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && playerSprite.body.onFloor() && game.time.now > thisP.jumpTimer){
@@ -191,9 +215,24 @@
       }
 
       if (thisP.facing === "left") {
+        if(thisP.isRaging){
+          playerSprite.animations.play('rageLeft');
+        }else{
           playerSprite.animations.play('left');
-      } else {
+        }
+      } else if (thisP.facing === "right") {
+        if(thisP.isRaging){
+          playerSprite.animations.play('rageRight');
+        }else{
           playerSprite.animations.play('right');
+        }      }else{
+          if(game.time.now > thisP.jumpTimer){
+            playerSprite.animations.play('still');
+          }else if(thisP.lastFacing === "right"){
+            playerSprite.animations.play('right');
+          }else{
+            playerSprite.animations.play('left');
+          }
       }
 
       if(thisP.gettingHurt){
