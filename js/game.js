@@ -1,7 +1,7 @@
 (function (Phaser) {
 
     var game = new Phaser.Game(
-            900, 600, // The width and height of the game in pixels
+            900, 550, // The width and height of the game in pixels
             Phaser.AUTO, // The type of graphic rendering to use
             // (AUTO tells Phaser to detect if WebGL is supported.
             //  If not, it will default to Canvas.)
@@ -16,11 +16,11 @@
     function preload() {
         // Load the spritesheet 'character.png', telling Phaser each frame is 40x64
         game.load.spritesheet('unicorn', 'assets/unicorn-sprite-less.png', 150, 150);
-        game.load.spritesheet('zombie', 'assets/zombie-rage-sprite.png', 69, 70);
+        game.load.spritesheet('zombie', 'assets/zombie-rage-red-sprite.png', 69, 70);
         // game.load.atlasJSONHash('zombie', 'assets/zomb.png', 'assets/zomb.json')
 
         //Start Part 2
-        game.load.tilemap('map', 'assets/purple-level.json', null, Phaser.Tilemap.TILED_JSON);
+        game.load.tilemap('map', 'assets/long-level.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.image('level-80', "assets/level-80.png");
     }
 
@@ -29,20 +29,55 @@
     var score = 0;
     var gameIsOver = true;
     var gameIsWon = false;
+    var nudgeGiven = false;
 
     //Start Part 2
     var map;
     var layer;
 
+    function startGame(){
+      gameIsOver = false;
+      if(player){
+        player.sprite.kill();
+        player = null;
+      }
+      player = new Player(6, 5);
+      game.camera.follow(player.sprite);
+      updateLives();
+      document.querySelector("#directions").className = "hide";
+      document.querySelector("#textScreen").className = "hide";
+      enemies.forEach(function(enemy){
+        enemy.sprite.kill()
+      });
+      enemies = [];
+      new Enemy(216,200, 'left');
+      new Enemy(992,200, 'right');
+      new Enemy(340,500, 'right');
+      new Enemy(1232,400, 'right');
+      new Enemy(1356,100, 'left');
+      new Enemy(2076,500, 'right');
+      new Enemy(2104,100, 'right');
+      new Enemy(2436,300, 'right');
+      new Enemy(2524,500, 'left');
+      new Enemy(3400,300, 'right');
+      new Enemy(3540,100, 'left');
+      new Enemy(3956,100, 'right');
+      new Enemy(4020,500, 'right');
+      new Enemy(4588,500, 'left');
+      score = 0
+      updateScore();
+    }
+
 
     function create() {
       document.querySelector("#start").onclick = function(){
-        gameIsOver = false;
-        player = new Player(7, 3);
-        game.camera.follow(player.sprite);
-        updateLives();
-        document.querySelector("#directions").className = "hide"
+        startGame();
       }
+        document.onkeypress = function(){
+          if(gameIsOver){
+            startGame();
+          }
+        }
 
         // Make the background color of the game's stage
         game.stage.backgroundColor = '#ffb6c1';
@@ -60,16 +95,8 @@
 
         // Create and add a sprite to the game at the position (2*48 x 6 *48)
         // and using, in this case, the spritesheet 'character'
-        new Enemy(3,3, 'left');
-        new Enemy(9,3, 'right');
-        new Enemy(8,9, 'right');
-        new Enemy(15,9, 'right');
-        new Enemy(20,9, 'left');
-        new Enemy(20,3, 'left');
-        new Enemy(30,10, 'right');
 
         // Set the camera to follow the 'player'
-        updateScore();
     }
 
     function updateScore(){
@@ -80,8 +107,9 @@
     }
 
     function gameOver(){
-      document.querySelector("#textScreen").innerHTML= "Game Over";
+      document.querySelector("#textScreen").innerHTML= "Game Over <div class='sub'>spacebar to restart</div>";
       document.querySelector("#textScreen").className = "";
+      gameIsOver = true;
     }
 
     function youWin(){
@@ -106,7 +134,6 @@
           }, 1000);
         }
         if(player.lives === 0){
-          gameIsOver = true;
           gameOver();
         }
       }
@@ -157,6 +184,10 @@
       playerSprite = this.sprite;
       game.physics.arcade.collide(playerSprite, layer);
       playerSprite.body.velocity.x = 0;
+
+      if (playerSprite.bottom >= game.world.height) {
+          gameOver();
+      }
 
       if(!gameIsOver){
         movePlayer(this);
@@ -236,6 +267,13 @@
       }
 
       if(thisP.gettingHurt){
+        if(!nudgeGiven){
+          nudgeGiven = true;
+          document.querySelector("#nudgeInstructions").className = "";
+          setTimeout(function(){
+            document.querySelector("#nudgeInstructions").className = "hide";
+          }, 6000);
+        }
         if(Math.random() >= 0.5){
           thisP.sprite.tint = 15833293.907824585;
         }else{
@@ -247,7 +285,7 @@
     }
 
     var Enemy = function(x, y, facing){
-      var enemy = game.add.sprite(x * 64, y * 64, 'unicorn');
+      var enemy = game.add.sprite(x, y, 'unicorn');
       game.physics.enable(enemy);
       enemy.body.gravity.y = 400;
 
