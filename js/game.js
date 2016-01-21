@@ -36,16 +36,6 @@
     var layer;
 
     function startGame(){
-      gameIsOver = false;
-      if(player){
-        player.sprite.kill();
-        player = null;
-      }
-      player = new Player(6, 5);
-      game.camera.follow(player.sprite);
-      updateLives();
-      document.querySelector("#directions").className = "hide";
-      document.querySelector("#textScreen").className = "hide";
       enemies.forEach(function(enemy){
         enemy.sprite.kill()
       });
@@ -64,6 +54,16 @@
       new Enemy(3956,100, 'right');
       new Enemy(4020,500, 'right');
       new Enemy(4588,500, 'left');
+      gameIsOver = false;
+      if(player){
+        player.sprite.kill();
+        player = null;
+      }
+      player = new Player(6, 5);
+      game.camera.follow(player.sprite);
+      updateLives();
+      document.querySelector("#directions").className = "hide";
+      document.querySelector("#textScreen").className = "hide";
       score = 0
       updateScore();
     }
@@ -208,7 +208,6 @@
         if(!thisP.rageHit){
           thisP.rageHit = true;
           thisP.rageTimer = game.time.now + 650;
-          console.log(thisP.rageTimer );
         }
       }else{
         player.rage = false;
@@ -240,6 +239,7 @@
         thisP.facing = "front";
       }
 
+
       if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && playerSprite.body.onFloor() && game.time.now > thisP.jumpTimer){
           playerSprite.body.velocity.y = thisP.vertMove;
           thisP.jumpTimer = game.time.now + 650;
@@ -258,7 +258,11 @@
           playerSprite.animations.play('right');
         }      }else{
           if(game.time.now > thisP.jumpTimer){
-            playerSprite.animations.play('still');
+            if(thisP.isRaging){
+              playerSprite.animations.play('rageRight');
+            }else{
+              playerSprite.animations.play('still');
+            }
           }else if(thisP.lastFacing === "right"){
             playerSprite.animations.play('right');
           }else{

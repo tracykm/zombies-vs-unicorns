@@ -11,5 +11,4 @@ I built it with Phaser and custom animated spritesheets.
 
 Arrow keys walk, spacebar jumps, and shift triggers rage mode where you run faster and kill any unicorns you hit. Unicorns hurt you normally, and you only have 3 undead lives so use them wisely. The score is kept in the top right corner, you must get all those pesky unicorns to win.
 
-screenshot:
-![zombies screenshot](http://tracymullen.com/images/work/zombies.jpg "zombies screenshot")
+![zombies screenshot](http://tracymullen.com/images/zombies.jpg "zombies screenshot")
